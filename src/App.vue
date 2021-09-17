@@ -8,6 +8,7 @@
           <input
             class="text-center self-center py-2  border border-gray-200 w-min"
             pattern="[0-9]+"
+            maxlength="8"
             title="Por favor, insira um CEP válido"
             required="required"
             type="text"
@@ -22,6 +23,7 @@
         </div>
       </form>
       <div class=" w-max ">
+        <h2 class="text-center w-full font-bold text-2xl" v-if="fetchError">{{ fetchError }}</h2>
         <Results v-if="results && !errorMessage" :results="results" />
         <p v-if="errorMessage">{{ errorMessage }}</p>
       </div>
@@ -39,23 +41,32 @@ export default {
       cep: '',
       results: null,
       errorMessage: '',
+      fetchError: '',
     };
   },
   methods: {
     async cepSearch(cep) {
-      const res = await fetch('https://cep.awesomeapi.com.br/json/' + cep);
-      const data = await res.json();
+      try {
+        const res = await fetch('https://cep.awesomeapi.com.br/json/' + cep);
+        if (!res.ok) {
+          throw Error('no data available');
+        }
+        const data = await res.json();
 
-      if (data.status) {
-        if (data.status === 404) {
-          this.errorMessage = data.message;
+        if (data.status) {
+          if (data.status === 404) {
+            this.errorMessage = data.message;
+          }
+          if (data.status === 400) {
+            this.errorMessage = data.message;
+          }
+        } else {
+          this.results = data;
+          this.errorMessage = '';
         }
-        if (data.status === 400) {
-          this.errorMessage = data.message;
-        }
-      } else {
-        this.results = data;
-        this.errorMessage = '';
+      } catch (err) {
+        this.fetchError = err.message;
+        console.log(this.fetchError);
       }
     },
   },

@@ -7,9 +7,9 @@ module.exports = {
       center: true,
       padding: '2rem',
     },
-    variants: {
-      extend: {},
-    },
-    plugins: [],
   },
+  variants: {
+    extend: {},
+  },
+  plugins: [],
 };
